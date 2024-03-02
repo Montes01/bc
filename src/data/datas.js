@@ -28,6 +28,21 @@ class userData {
             });
         });
     }
+
+    static obtenerInformacionUsuario(id, callback) {
+        const query = 'SELECT * FROM Clients WHERE id = ?';
+        database.query(query, [id], (err, result) => {
+          if (err) {
+            console.error('Error al obtener la información del usuario: ' + err.message);
+            callback(err, null);
+          } else if (result.length === 0) {
+            callback(null, null);
+          } else {
+            const usuario = result[0]; 
+            callback(null, usuario);
+       }
+        });
+      }
 }
 
 

@@ -1,20 +1,60 @@
 const bcrypt = require('bcryptjs');
-const {userData} = require('../data/datas');
+const jwt = require('jsonwebtoken');  // Asegúrate de tener instalado el paquete 'jsonwebtoken'
+const { userData } = require('../data/datas');
 
+const handleResponse = (res, message) => {
+    return (error, data) => {
+        if (error) {
+            res.status(500).json({ message: "Error interno del servidor" });
+        } else if (!data) {
+            res.status(404).json({ message });
+        } else {
+            res.status(200).json(data);
+        }
+    };
+};
 
-let register = async (req, res) => {
-    const {user,email,password, phone} = req.body
-    let valid = userData.addClient(user, email,password, phone);
-    if(!valid){
+const register = async (req, res) => {
+    const { user, email, password, phone } = req.body;
+    let valid = userData.addClient(user, email, password, phone);
+    if (!valid) {
         return res.status(201).send(
-            {status: 'Register Completed'}
-        ); 
-    }else{
+            { status: 'Register Completed' }
+        );
+    } else {
         return res.status(404).send(
-            {status: 'Bad register'}
-        )
+            { status: 'Bad register' }
+        );
     }
-}   
+};
 
+const verPerfilUsuario = (req, res) => {
+   console.log('Solicitud recibida en /getUserInfo');
+    // Extrae el token de autorización del encabezado de la solicitud
+    const token = req.headers['authorization'];
 
-module.exports = {register};
+    if (!token) {
+        return res.status(401).json({ error: 'Token de autorización no proporcionado' });
+    }
+
+    // Verifica y decodifica el token
+    jwt.verify(token, config.SIGNING_KEY_TOKEN, (err, user) => {
+        if (err) {
+            return res.status(403).json({ error: 'Error al verificar el token' });
+        }
+
+        const userId = user.id;  // Así es como obtendrías la información del usuario desde el token
+
+        userData.obtenerInformacionUsuario(userId, handleResponse(res, "Usuario no encontrado"), (error, usuario) => {
+            if (usuario) {
+                const { id, user, email, phone } = usuario;
+                res.status(200).json({
+                    message: "Información de perfil obtenida con éxito",
+                    usuario: { id, user, email, phone },
+                });
+            }
+        });
+    });
+};
+
+module.exports = { register, verPerfilUsuario };

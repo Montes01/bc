@@ -14,22 +14,19 @@ const handleResponse = (res, message) => {
     };
 };
 
-const register = async (req, res) => {
-    const { user, email, password, phone } = req.body;
-    let valid = userData.addClient(user, email, password, phone);
-    if (!valid) {
-        return res.status(201).send(
-            { status: 'Register Completed' }
-        );
-    } else {
-        return res.status(404).send(
-            { status: 'Bad register' }
-        );
-    }
+const register = (req, res) => {
+    userData.addClient(req.body, (err, result) => {
+        if (err) {
+            console.error("Error al registrar el usuario: " + err.message);
+            return res.status(500).json({ message: "Error interno del servidor" });
+        }
+        res.status(200).json({ message: "Usuario registrado exitosamente" });
+    });
+
 };
 
 const verPerfilUsuario = (req, res) => {
-   console.log('Solicitud recibida en /getUserInfo');
+    console.log('Solicitud recibida en /getUserInfo');
     // Extrae el token de autorización del encabezado de la solicitud
     const token = req.headers['authorization'];
 

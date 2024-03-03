@@ -14,18 +14,17 @@ database.connect();
 
 
 class userData {
-    static addClient( user, email, password, phone) {
+    static addClient( user, callback) {
+        console.log(user)
         const query = "INSERT INTO Clients ( user, email, password, phone ) VALUES (  ?, ?, ?, ?)";
-        return new Promise((resolve, reject) => {
-            database.query(query, [user,  email, password,  phone], (err, result) => {
-                if (err) {
-                    console.error("Error registered " + err.message);
-                    reject(err);
-                } else {
-                    console.log("Client registered successfully");
-                    resolve(true);
-                }
-            });
+        database.query(query, [user.user,  user.email, user.password,  user.phone], (err, result) => {
+            if (err) {
+            console.error("Error registered " + err.message);
+            callback(err, null);
+            } else {
+            console.log("Client registered successfully");
+            callback(null, true);
+            }
         });
     }
 

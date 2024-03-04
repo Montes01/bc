@@ -15,7 +15,7 @@ const handleResponse = (res, message) => {
 };
 
 const register = (req, res) => {
-    userData.addClient(req.body, (err, result) => {
+    userData.addClient(req.body, (err) => {
         if (err) {
             console.error("Error al registrar el usuario: " + err.message);
             return res.status(500).json({ message: "Error interno del servidor" });

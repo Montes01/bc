@@ -1,94 +1,25 @@
-const bcrypt = require('bcryptjs');
+const generatorToken = require('../helpers/generator-token');
+const { userData } = require('../data/datas');
 
-function login(req, res){
-    if (req.session.loggedin != true) {
-        
-        res.render('login/index');
-    }else{
-        res.redirect('/')
-    }
-    
-}
-
-function auth(req, res) {
+function login(req, res) {
     const data = req.body;
+    userData.login(data, (error, user) => {
+        if (error) {
+            console.error('Error al autenticar el usuario: ' + error.message);
+            return res.status(500).json({ message: "Error interno del servidor" });
+        }
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+        const token = generatorToken({ id: user.id, user: user.user, email: user.email, phone: user.phone });
+        res.status(200).json({ message: "Autenticación exitosa", token });
 
-    req.getConnection((err, conn)=>{
-        conn.query('SELECT * FROM users WHERE email = ?',[data.email], (err, userdata)=>{
-
-            if (userdata.length > 0) {
-                userdata.forEach(element => {
-                    bcrypt.compare(data.password, element.password, (err, isMatch) =>{
-
-                    if (!isMatch) {
-                        res.render('login/index', {error: 'Error: Usuario o contraseña incorrectos !'});
-                    }else{
-                        req.session.loggedin = true
-                        req.session.name = element.name     
-                        
-                        res.redirect('/');
-                    }
-                    })
-                });
-                
-            }else{
-                res.render('login/index', {error: 'Error: Usuario NO  existe !'});
-            }
-        });
     });
+
 }
 
 
-function register(req, res){
 
-    if (req.session.loggedin != true) {
-        
-        res.render('register/register');
-    }else{
-        res.redirect('/')
-    }
-}
-
-function storeUser(req, res){
-    const data = req.body;
-
-    req.getConnection((err, conn)=>{
-        conn.query('SELECT * FROM users WHERE email = ?',[data.email], (err, userdata)=>{
-            if (userdata.length > 0) {
-                res.render('register/register', {error: 'Error: Usuario ya existe !'});
-            }else{
-                bcrypt.hash(data.password, 12).then(hash => {
-                    data.password = hash;
-            
-                    req.getConnection((err, conn) =>{
-                        conn.query('INSERT INTO users SET ?', [data],(err, rows)=>{
-
-                            req.session.loggedin = true;
-                            req.session.name = data.name;
-
-                            res.redirect('/');
-                        });
-                    });
-                });
-            }
-        });
-    });
-}
-//pendiente  controlador de borrar
-//function delete()
-
-function logout(req, res) {
-    if(req.session.loggedin == true){
-        req.session.destroy();
-    }else{
-        res.redirect('/login')
-    }
-}
-
-module.exports ={
-    login,
-    register,
-    storeUser,
-    auth,
-    logout,
+module.exports = {
+    login
 }

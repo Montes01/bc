@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');  // Asegúrate de tener instalado el paquete 'jsonwebtoken'
 const { userData } = require('../data/datas');
+const config = require('../config/keys');
+
 
 const handleResponse = (res, message) => {
     return (error, data) => {
@@ -17,7 +19,7 @@ const handleResponse = (res, message) => {
 const register = (req, res) => {
     userData.addClient(req.body, (err) => {
         if (err) {
-            console.error("Error al registrar el usuario: " + err.message);
+            console.error("Error al registrar el usuario: ", err);
             return res.status(500).json({ message: "Error interno del servidor" });
         }
         res.status(200).json({ message: "Usuario registrado exitosamente" });
@@ -25,33 +27,4 @@ const register = (req, res) => {
 
 };
 
-const verPerfilUsuario = (req, res) => {
-    console.log('Solicitud recibida en /getUserInfo');
-    // Extrae el token de autorización del encabezado de la solicitud
-    const token = req.headers['authorization'];
-
-    if (!token) {
-        return res.status(401).json({ error: 'Token de autorización no proporcionado' });
-    }
-
-    // Verifica y decodifica el token
-    jwt.verify(token, config.SIGNING_KEY_TOKEN, (err, user) => {
-        if (err) {
-            return res.status(403).json({ error: 'Error al verificar el token' });
-        }
-
-        const userId = user.id;  // Así es como obtendrías la información del usuario desde el token
-
-        userData.obtenerInformacionUsuario(userId, handleResponse(res, "Usuario no encontrado"), (error, usuario) => {
-            if (usuario) {
-                const { id, user, email, phone } = usuario;
-                res.status(200).json({
-                    message: "Información de perfil obtenida con éxito",
-                    usuario: { id, user, email, phone },
-                });
-            }
-        });
-    });
-};
-
-module.exports = { register, verPerfilUsuario };
+module.exports = { register };

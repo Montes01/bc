@@ -7,13 +7,13 @@ const auth = require('../src/routes/getJwt');
 const login = require('./routes/login');
 const register = require('./routes/register');
 const cors = require('cors');
-const getUserInfo = require('./routes/getUserInfo');
+// const getUserInfo = require('./routes/getUserInfo');
 
 const app = express().use(cors()).use(bodyParser.json()).use(cookieParser(signingKey.SIGNING_KEY_COOKIE));
 app.use('/register', register);
 app.use('/login', login);
 app.use('/readToken', validateToken);
-app.use('/getInfo', getUserInfo);
+// app.use('/getInfo', getUserInfo);
 
 const PORT = process.env.PORT ?? 3000;
 

@@ -8,6 +8,7 @@ const login = require('./routes/login');
 const register = require('./routes/register');
 const gruasRoutes = require('./routes/gruasRutes');
 const getGruasInfoRoute = require('./routes/getGruasInfo');
+const userCranesRoutes = require('./routes/userCranesRoutes')
 const cors = require('cors');
 
 const app = express().use(cors()).use(bodyParser.json()).use(cookieParser(signingKey.SIGNING_KEY_COOKIE));
@@ -25,6 +26,7 @@ app.use('/login', login);
 app.use('/readToken', validateToken);
 app.use('/gruas', gruasRoutes);
 app.use('/getGruasInfo', getGruasInfoRoute);
+app.use('/userCranesRoutes', userCranesRoutes)
 
 const PORT = process.env.PORT ?? 3000;
 

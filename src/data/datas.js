@@ -25,7 +25,7 @@ class userData {
   }
   static addGrua(grua, clienteId, callback) {
     const query = "INSERT INTO gruas (marca, modelo, capacidad, whatsapp, ubicacion, foto_path, cliente_id ) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    const values = [grua.marca, grua.modelo, grua.capacidad, grua.whatsapp, grua.ubicacion, grua.foto_path, clienteId];
+    const values = [grua.marca, grua.modelo, grua.capacidad, grua.whatsapp, grua.ubicacion, grua.foto, clienteId];
   
     database.query(query, values, (err, result) => {
       if (err) {
